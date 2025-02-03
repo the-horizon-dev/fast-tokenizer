@@ -1,6 +1,6 @@
 {
   "name": "@the-horizon-dev/fast-tokenizer",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "High-performance library for tokenizing text.",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -10,6 +10,7 @@
     "LICENSE",
     "README.md"
   ],
+  "type": "module",
   "exports": {
     ".": {
       "types": "./dist/esm/index.d.ts",
