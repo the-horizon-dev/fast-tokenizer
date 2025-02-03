@@ -89,10 +89,10 @@ export class Stemmer extends BaseStemmer {
       result = result.slice(0, -7) + "ate";
     } else if (result.endsWith("fulness") && result.length > 8) {
       // e.g., "gracefulness" → "graceful"
-      result = result.slice(0, -8) + "ful";
-    } else if (result.endsWith("ousness") && result.length > 8) {
+      result = result.slice(0, -4);  // Just remove 'ness'
+    } else if (result.endsWith("ousness") && result.length > 7) {
       // e.g., "hazardousness" → "hazardous"
-      result = result.slice(0, -8) + "ous";
+      result = result.slice(0, -4);  // Changed: only remove 'ness', keeping 'ous'
     }
 
     // --- Step 5: Remove double consonants at the end ---

@@ -35,7 +35,7 @@ export class Tokenizer implements ITokenizer {
     maxLength: 50,
   };
 
-  private static readonly PUNCTUATION_REGEX = /[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/g;
+  private static readonly PUNCTUATION_REGEX = /[!"#$%&'()*+,\-./:;<=>?@[\]^_`{|}~¡¿«»""''‹›„"'\u0027\u0022\u2018-\u201F\u00A1\u00BF]/g;
   private static readonly WHITESPACE_REGEX = /\s+/;
   private static readonly NUMBER_REGEX = /\d+/g;
 

@@ -64,6 +64,6 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "@the-horizon-dev/fast-diacritics": "^1.0.5"
+    "@the-horizon-dev/fast-diacritics": "^1.0.7"
   }
 }

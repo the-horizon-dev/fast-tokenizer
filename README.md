@@ -43,7 +43,7 @@ console.log(joined);
 
 You can perform sentiment analysis on text using the language‑specific modules. The library provides a unified API that leverages language‑dependent dictionaries, negation rules, and (optional) stemming.
 
-#### Example (English):
+#### Example (English)
 
 ```typescript
 import { SentimentAnalyzer } from "@the-horizon-dev/fast-tokenizer";
@@ -62,7 +62,7 @@ console.log(result);
 // }
 ```
 
-#### Example (Brazilian Portuguese):
+#### Example (Brazilian Portuguese)
 
 ```typescript
 import { SentimentAnalyzer } from "@the-horizon-dev/fast-tokenizer";
