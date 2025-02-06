@@ -22,6 +22,14 @@ import { ITokenizer, TokenizerOptions } from "./interfaces/ITokenizer";
  * const text = "Hello, world! This is a sample text.";
  * const tokens = tokenizer.tokenize(text, { minLength: 3 });
  * console.log(tokens);
+ * 
+ * // Get trigrams as an array of token arrays:
+ * const trigramArrays = tokenizer.getTrigrams(text);
+ * console.log(trigramArrays);
+ * 
+ * // Get trigrams as joined strings:
+ * const trigramStrings = tokenizer.getTrigrams(text, {}, 3, true);
+ * console.log(trigramStrings);
  * ```
  */
 export class Tokenizer implements ITokenizer {
@@ -111,6 +119,37 @@ export class Tokenizer implements ITokenizer {
       chunks.push(tokens.slice(i, i + size).join(" "));
     }
     return chunks;
+  }
+
+  /**
+   * Splits the input text into an array of n-grams.
+   * By default, returns trigrams (n=3), but n can be configured.
+   *
+   * @param text - The input text.
+   * @param options - Optional tokenization options.
+   * @param n - The n‑gram size (default is 3 for trigrams).
+   * @param joinTokens - If true, each n‑gram is returned as a single string; otherwise, as an array of tokens.
+   * @returns An array of n-grams, each either as an array of tokens or as a joined string.
+   */
+  public getTrigrams(
+    text: string,
+    options: TokenizerOptions = {},
+    n = 3,
+    joinTokens = false
+  ): (string[] | string)[] {
+    const tokens = this.tokenize(text, options);
+    const nGrams: (string[] | string)[] = [];
+
+    if (tokens.length < n) {
+      return nGrams;
+    }
+
+    for (let i = 0; i <= tokens.length - n; i++) {
+      const gram = tokens.slice(i, i + n);
+      nGrams.push(joinTokens ? gram.join(" ") : gram);
+    }
+
+    return nGrams;
   }
 
   /**
