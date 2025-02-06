@@ -104,64 +104,84 @@ describe("Tokenizer", () => {
   });
 });
 
-describe("Tokenizer - getTrigrams", () => {
-  let tokenizer: Tokenizer;
-
-  beforeEach(() => {
-    // Create a tokenizer instance with default options.
-    tokenizer = new Tokenizer({ lowercase: true, removeStopWords: false });
+describe("Tokenizer - ngrams", () => {
+  it("should return an empty array for an empty string", () => {
+    const result = Tokenizer.getNGrams("", 3, true);
+    expect(result).toEqual([]);
   });
 
-  test("returns an empty array when input text is empty", () => {
-    const trigrams = tokenizer.getTrigrams("");
-    expect(trigrams).toEqual([]);
+  it("should return an empty array when the padded string is shorter than n", () => {
+    // Given that the function pads with a space on both ends,
+    // even a one-letter input becomes " a " which is 3 characters.
+    // So we need a string that results in a padded length less than n.
+    // In practice, this scenario is hard to trigger because n=3 is the default.
+    // We simulate with n greater than the padded string length.
+    const result = Tokenizer.getNGrams("ab", 5, true);
+    expect(result).toEqual([]);
   });
 
-  test("returns an empty array when there are not enough tokens for one trigram", () => {
-    // Only one token
-    const trigrams = tokenizer.getTrigrams("Hello");
-    expect(trigrams).toEqual([]);
+  it("should generate correct n-grams as joined strings (default behavior)", () => {
+    // Example: input "abcde"
+    // Cleaned and lowercased: "abcde"
+    // Padded value: " abcde " (length 7)
+    // For n=3, we expect:
+    // i=0: " ab"  (space, a, b)
+    // i=1: "abc"
+    // i=2: "bcd"
+    // i=3: "cde"
+    // i=4: "de "  (d, e, space)
+    const input = "abcde";
+    const expected = [" ab", "abc", "bcd", "cde", "de "];
+    const result = Tokenizer.getNGrams(input, 3, true);
+    expect(result).toEqual(expected);
   });
 
-  test("returns correct trigrams as arrays of tokens", () => {
-    const text = "The quick brown fox jumps over the lazy dog";
-    // Tokenized text: ["the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"]
+  it("should generate correct n-grams as arrays of characters when joinTokens is false", () => {
+    // Using the same example as above with joinTokens set to false.
+    const input = "abcde";
     const expected = [
-      ["the", "quick", "brown"],
-      ["quick", "brown", "fox"],
-      ["brown", "fox", "jumps"],
-      ["fox", "jumps", "over"],
-      ["jumps", "over", "the"],
-      ["over", "the", "lazy"],
-      ["the", "lazy", "dog"]
+      [" ", "a", "b"],
+      ["a", "b", "c"],
+      ["b", "c", "d"],
+      ["c", "d", "e"],
+      ["d", "e", " "],
     ];
-    const trigrams = tokenizer.getTrigrams(text);
-    expect(trigrams).toEqual(expected);
+    const result = Tokenizer.getNGrams(input, 3, false);
+    expect(result).toEqual(expected);
   });
 
-  test("returns trigrams as joined strings when joinTokens is true", () => {
-    const text = "one two three four";
-    // Tokenized text: ["one", "two", "three", "four"]
-    // Expected joined trigrams: ["one two three", "two three four"]
-    const expected = ["one two three", "two three four"];
-    const trigrams = tokenizer.getTrigrams(text, {}, 3, true);
-    expect(trigrams).toEqual(expected);
+  it("should remove diacritics, punctuation, collapse whitespace and lowercase the input", () => {
+    // For example, the input "Héllo,   World!!" should be cleaned to "hello world"
+    // and then padded: " hello world "
+    // For n=3, the generated n-grams (as joined strings) are computed over the padded string.
+    const input = "Héllo,   World!!";
+    // Clean process:
+    //   - Diacritics removal: "Hello,   World!!"
+    //   - Punctuation replaced: "Hello    World  " -> collapse spaces: "Hello World"
+    //   - Lowercased and trimmed: "hello world"
+    //   - Padded: " hello world "
+    // For n=3, the ngrams would be:
+    // [" he", "hel", "ell", "llo", "lo ", "o w", " wo", "wor", "orl", "rld", "ld "]
+    const expected = [" he", "hel", "ell", "llo", "lo ", "o w", " wo", "wor", "orl", "rld", "ld "];
+    const result = Tokenizer.getNGrams(input, 3, true);
+    expect(result).toEqual(expected);
   });
 
-  test("allows custom n-gram sizes (e.g., bigrams)", () => {
-    const text = "a b c d";
-    // Override the minLength to 1 so that single-character tokens are not filtered out.
-    const expected = [["a", "b"], ["b", "c"], ["c", "d"]];
-    const bigrams = tokenizer.getTrigrams(text, { minLength: 1 }, 2, false);
-    expect(bigrams).toEqual(expected);
-  });
+  it("should support different n values", () => {
+    // Test with n=2 (bigrams)
+    // For input "abc", padded becomes " abc ", length 5, so bigrams:
+    // i=0: " a", i=1: "ab", i=2: "bc", i=3: "c "
+    const input = "abc";
+    const expectedBigrams = [" a", "ab", "bc", "c "];
+    const resultBigrams = Tokenizer.getNGrams(input, 2, true);
+    expect(resultBigrams).toEqual(expectedBigrams);
 
-  test("allows custom n-gram sizes (e.g., 4-grams) as joined strings", () => {
-    const text = "one two three four five";
-    // Tokenized text: ["one", "two", "three", "four", "five"]
-    // Expected 4-grams (joined): ["one two three four", "two three four five"]
-    const expected = ["one two three four", "two three four five"];
-    const fourGrams = tokenizer.getTrigrams(text, {}, 4, true);
-    expect(fourGrams).toEqual(expected);
+    // Test with n=4
+    // For input "abcd", padded becomes " abcd ", length 6, so 4-grams:
+    // i=0: " abc", i=1: "abcd", i=2: "bcd "
+    const input2 = "abcd";
+    const expectedFourgrams = [" abc", "abcd", "bcd "];
+    const resultFourgrams = Tokenizer.getNGrams(input2, 4, true);
+    expect(resultFourgrams).toEqual(expectedFourgrams);
   });
 });
