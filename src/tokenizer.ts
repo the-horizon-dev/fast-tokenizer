@@ -147,8 +147,8 @@ export class Tokenizer implements ITokenizer {
     n = 3,
     joinTokens = true
   ): (string[] | string)[] {
-    // Return an empty array for falsy or empty input.
-    if (!srcValue) return [];
+    // Return an empty array for falsy input or non-positive n.
+    if (!srcValue || n <= 0) return [];
 
     // Remove diacritics and convert the input to a string.
     const cleaned = Diacritics.remove(String(srcValue));
@@ -219,13 +219,14 @@ export class Tokenizer implements ITokenizer {
    */
   private filterStopWords(tokens: string[], opts: TokenizerOptions): string[] {
     const languageStopWords: ReadonlySet<string> = this.getStopWords(opts);
-    const customStopWords: ReadonlySet<string> = new Set(
-      opts.customStopWords ?? []
-    );
-    const allStopWords: ReadonlySet<string> = new Set([
-      ...languageStopWords,
-      ...customStopWords,
-    ]);
-    return tokens.filter((token: string): boolean => !allStopWords.has(token));
+    const customStopWordsSet =
+      opts.customStopWords && opts.customStopWords.length > 0
+        ? new Set(opts.customStopWords)
+        : undefined;
+
+    return tokens.filter((token: string): boolean => {
+      if (languageStopWords.has(token)) return false;
+      return customStopWordsSet ? !customStopWordsSet.has(token) : true;
+    });
   }
 }
