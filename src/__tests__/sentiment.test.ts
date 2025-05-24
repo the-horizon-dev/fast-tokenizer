@@ -39,6 +39,9 @@ describe("Sentiment Analysis", () => {
     const result = analyzer.analyze("");
     expect(result.score).toBe(0);
     expect(result.tokens).toHaveLength(0);
+    expect(result.words).toHaveLength(0);
+    expect(result.positive).toHaveLength(0);
+    expect(result.negative).toHaveLength(0);
   });
 
   test("handles unknown language gracefully", () => {

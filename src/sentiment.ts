@@ -26,12 +26,24 @@ export class BaseSentiment implements ISentiment {
         break;
     }
 
+    if (!text) {
+      return {
+        score: 0,
+        comparative: 0,
+        tokens: [],
+        words: [],
+        positive: [],
+        negative: [],
+      };
+    }
+
     // Tokenize the text using the language‑specific tokenizer
     const tokenizer = new langModule.Tokenizer();
     const tokens = tokenizer.tokenize(text);
-    
-    // Process tokens with stemmer
-    const processedTokens = tokens.map(token => new langModule.Stemmer().stem(token));
+
+    // Process tokens with a single stemmer instance
+    const stemmer = new langModule.Stemmer();
+    const processedTokens = tokens.map((token) => stemmer.stem(token));
 
     // Simplified result without sentiment analysis
     return {

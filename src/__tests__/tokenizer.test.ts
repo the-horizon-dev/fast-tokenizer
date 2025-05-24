@@ -184,4 +184,9 @@ describe("Tokenizer - ngrams", () => {
     const resultFourgrams = Tokenizer.getNGrams(input2, 4, true);
     expect(resultFourgrams).toEqual(expectedFourgrams);
   });
+
+  it("should return an empty array when n is zero or negative", () => {
+    expect(Tokenizer.getNGrams("abc", 0)).toEqual([]);
+    expect(Tokenizer.getNGrams("abc", -2)).toEqual([]);
+  });
 });
