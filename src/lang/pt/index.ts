@@ -1,8 +1,8 @@
-import { Tokenizer } from "./tokenizer";
-import { Stemmer } from "./stemmer";
-import { Stopwords } from "./stopwords/stopwords";
-import { Normalizer } from "./normalizer";
-import { ILanguageModule, Container } from "../../interfaces/ILanguageModule";
+import { Tokenizer } from "./tokenizer.js";
+import { Stemmer } from "./stemmer.js";
+import { Stopwords } from "./stopwords/stopwords.js";
+import { Normalizer } from "./normalizer.js";
+import { ILanguageModule, Container } from "../../interfaces/ILanguageModule.js";
 
 /**
  * Language module for Brazilian Portuguese.

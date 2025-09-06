@@ -1,4 +1,4 @@
-import { IStemmer } from "./interfaces/IStemmer";
+import { IStemmer } from "./interfaces/IStemmer.js";
 
 /**
  * A dictionary for exceptions. A stemmer may use it to provide before/after

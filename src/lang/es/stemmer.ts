@@ -1,4 +1,4 @@
-import { BaseStemmer, StemmerDictionary } from "../../stemmer";
+import { BaseStemmer, StemmerDictionary } from "../../stemmer.js";
 
 /**
  * SpanishStemmer applies a series of rules to reduce Spanish words to their stem.

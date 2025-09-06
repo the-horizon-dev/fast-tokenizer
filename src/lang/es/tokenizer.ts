@@ -1,6 +1,6 @@
-import { TokenizerOptions } from "../../interfaces/ITokenizer";
-import { Tokenizer as CoreTokenizer } from "../../tokenizer";
-import { Stopwords } from "./stopwords/stopwords";
+import type { TokenizerOptions } from "../../interfaces/ITokenizer.js";
+import { Tokenizer as CoreTokenizer } from "../../tokenizer.js";
+import { Stopwords } from "./stopwords/stopwords.js";
 
 /**
  * Spanish-specific tokenizer implementation.
@@ -8,7 +8,7 @@ import { Stopwords } from "./stopwords/stopwords";
  */
 export class Tokenizer extends CoreTokenizer {
   public static tokenize(text: string, options?: TokenizerOptions): string[] {
-    return new Tokenizer().tokenize(text, options);
+    return new this().tokenize(text, options);
   }
 
   protected getStopWords(options?: TokenizerOptions): ReadonlySet<string> {

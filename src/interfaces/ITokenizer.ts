@@ -40,5 +40,5 @@ export interface ITokenizer {
   /**
    * Divides text into fixed-size token chunks.
    */
-  chunk(text: string, size: number): string[];
+  chunk(text: string, size: number, options?: TokenizerOptions): string[];
 }

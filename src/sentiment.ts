@@ -1,7 +1,7 @@
-import { SentimentResult, ISentiment } from "./interfaces/ISentiment";
-import { LangEn } from "./lang/en";
-import { LangEs } from "./lang/es";
-import { LangPt } from "./lang/pt";
+import type { SentimentResult, ISentiment } from "./interfaces/ISentiment.js";
+import { LangEn } from "./lang/en/index.js";
+import { LangEs } from "./lang/es/index.js";
+import { LangPt } from "./lang/pt/index.js";
 
 type LanguageModule = {
   Tokenizer: new () => { tokenize(text: string): string[] };

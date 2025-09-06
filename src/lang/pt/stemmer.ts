@@ -1,4 +1,4 @@
-import { BaseStemmer, StemmerDictionary } from "../../stemmer";
+import { BaseStemmer, StemmerDictionary } from "../../stemmer.js";
 
 /**
  * PortugueseStemmer implements a stemming algorithm for Brazilian Portuguese.

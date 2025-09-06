@@ -1,5 +1,5 @@
 import { Diacritics } from "@the-horizon-dev/fast-diacritics";
-import { ITokenizer, TokenizerOptions } from "./interfaces/ITokenizer";
+import type { ITokenizer, TokenizerOptions } from "./interfaces/ITokenizer.js";
 
 /**
  * A high-performance text tokenizer with configurable options.
@@ -47,6 +47,7 @@ export class Tokenizer implements ITokenizer {
     /[!"#$%&'()*+,\-./:;<=>?@[\]^_`{|}~¡¿«»""''‹›„"'\u0027\u0022\u2018-\u201F\u00A1\u00BF]/g;
   private static readonly WHITESPACE_REGEX = /\s+/;
   private static readonly NUMBER_REGEX = /\d+/g;
+  private static readonly EMPTY_STOP_WORDS: ReadonlySet<string> = new Set();
 
   /**
    * Creates an instance of Tokenizer.
@@ -55,6 +56,17 @@ export class Tokenizer implements ITokenizer {
    */
   constructor(defaultOptions?: TokenizerOptions) {
     this.defaultOptions = { ...Tokenizer.BASE_OPTIONS, ...defaultOptions };
+  }
+
+  /**
+   * Static convenience method for tokenizing using a temporary instance.
+   *
+   * @param text - Raw input text to tokenize.
+   * @param options - Optional configuration options.
+   * @returns Array of processed tokens.
+   */
+  public static tokenize(text: string, options: TokenizerOptions = {}): string[] {
+    return new Tokenizer().tokenize(text, options);
   }
 
   /**
@@ -74,6 +86,11 @@ export class Tokenizer implements ITokenizer {
       throw new TypeError("Input text must be a string.");
     }
 
+    // Fast-path for empty or whitespace-only inputs
+    if (!text || !text.trim()) {
+      return [];
+    }
+
     let processedText = text;
 
     // Apply lowercase conversion.
@@ -91,12 +108,16 @@ export class Tokenizer implements ITokenizer {
     // Replace punctuation with spaces.
     processedText = processedText.replace(Tokenizer.PUNCTUATION_REGEX, " ");
 
+    // Trim once after normalization and punctuation replacement to avoid empty tokens
+    processedText = processedText.trim();
+    if (processedText.length === 0) {
+      return [];
+    }
+
     // Split text on whitespace.
     let tokens = processedText.split(Tokenizer.WHITESPACE_REGEX);
     // Filter tokens by length.
-    tokens = tokens.filter((token: string): boolean =>
-      this.isValidToken(token, opts)
-    );
+    tokens = tokens.filter((token: string): boolean => this.isValidToken(token, opts));
 
     // Remove stop words if enabled.
     return opts.removeStopWords ? this.filterStopWords(tokens, opts) : tokens;
@@ -117,10 +138,16 @@ export class Tokenizer implements ITokenizer {
    *
    * @param text - The input text.
    * @param size - The number of tokens per chunk.
+   * @param options - Optional tokenization options applied before chunking.
    * @returns An array of text chunks.
    */
-  public chunk(text: string, size: number): string[] {
-    const tokens: string[] = this.tokenize(text);
+  public chunk(text: string, size: number, options: TokenizerOptions = {}): string[] {
+    // Guard against invalid sizes to avoid infinite loops or exceptions
+    if (!Number.isInteger(size) || size <= 0) {
+      return [];
+    }
+
+    const tokens: string[] = this.tokenize(text, options);
     const chunks: string[] = [];
     for (let i = 0; i < tokens.length; i += size) {
       chunks.push(tokens.slice(i, i + size).join(" "));
@@ -149,6 +176,8 @@ export class Tokenizer implements ITokenizer {
   ): (string[] | string)[] {
     // Return an empty array for falsy or empty input.
     if (!srcValue) return [];
+    // Guard for invalid n values
+    if (!Number.isInteger(n) || n <= 0) return [];
 
     // Remove diacritics and convert the input to a string.
     const cleaned = Diacritics.remove(String(srcValue));
@@ -191,7 +220,7 @@ export class Tokenizer implements ITokenizer {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected getStopWords(_options?: TokenizerOptions): ReadonlySet<string> {
-    return new Set();
+    return Tokenizer.EMPTY_STOP_WORDS;
   }
 
   /**
@@ -219,13 +248,22 @@ export class Tokenizer implements ITokenizer {
    */
   private filterStopWords(tokens: string[], opts: TokenizerOptions): string[] {
     const languageStopWords: ReadonlySet<string> = this.getStopWords(opts);
-    const customStopWords: ReadonlySet<string> = new Set(
-      opts.customStopWords ?? []
-    );
-    const allStopWords: ReadonlySet<string> = new Set([
-      ...languageStopWords,
-      ...customStopWords,
-    ]);
-    return tokens.filter((token: string): boolean => !allStopWords.has(token));
+    const customStopWords: ReadonlySet<string> =
+      opts.customStopWords && opts.customStopWords.length > 0
+        ? new Set(opts.customStopWords)
+        : Tokenizer.EMPTY_STOP_WORDS;
+
+    // If there are no stop words at all, return the input tokens as-is
+    if ((languageStopWords as Set<string>).size === 0 && (customStopWords as Set<string>).size === 0) {
+      return tokens;
+    }
+
+    const filtered: string[] = [];
+    for (const token of tokens) {
+      if (!languageStopWords.has(token) && !customStopWords.has(token)) {
+        filtered.push(token);
+      }
+    }
+    return filtered;
   }
 }

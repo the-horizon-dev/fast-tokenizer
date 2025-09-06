@@ -1,4 +1,4 @@
-import { BaseStemmer, StemmerDictionary } from "../../stemmer";
+import { BaseStemmer, StemmerDictionary } from "../../stemmer.js";
 
 /**
  * EnglishStemmer provides a robust, multi‑step stemming algorithm for English.
